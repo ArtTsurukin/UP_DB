@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UP Used Parts - Внутренний сервис</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="header-left">
+                <div class="logo">
+    <img src="{{ url_for('static', filename='images/logo_60.png') }}" alt="UP Used Parts" class="logo-img">
+    <div class="logo-text">
+        <span class="logo-used">Used</span>
+        <span class="logo-parts">Parts</span>
+    </div>
+
+</div>
+                <ul class="nav-links">
+                    <li><a href="#">Главная</a></li>
+                    <li><a href="#">Каталог</a></li>
+                    <li><a href="#">Журнал продаж</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="info-section">
+            <div class="info-cards">
+                <div class="info-card">
+                    <h2>Каталог запчастей</h2>
+                    <p>Полная база доступных запчастей с актуальными остатками</p>
+                </div>
+                <div class="info-card">
+                    <h2>Журнал продаж</h2>
+                    <p>Учет всех сделок и история продаж</p>
+                </div>
+                <div class="info-card">
+                    <h2>Статистика</h2>
+                    <p>Аналитические данные по продажам и остаткам</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Внутренняя система UP Used Parts © 2025</p>
+        <p>Версия 1.0</p>
+    </footer>
+</body>
+</html>

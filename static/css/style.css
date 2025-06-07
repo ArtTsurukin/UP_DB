@@ -1,0 +1,151 @@
+:root {
+    --emerald: #006D4D;
+    --white: #FFFFFF;
+    --black: #000000;
+    --dark-gray: #222222;
+    --light-gray: #F5F5F5;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: var(--black);
+    background-color: var(--light-gray);
+    line-height: 1.6;
+}
+
+/* Увеличенная шапка */
+.header {
+    background-color: var(--black);
+    padding: 25px 0; /* Увеличенный padding */
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.25);
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px; /* Увеличенный padding */
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    margin-right: 50px; /* Увеличенный отступ */
+}
+
+.logo-text {
+    font-size: 28px;
+    font-weight: bold;
+    margin-left: 15px;
+    letter-spacing: 0.5px;
+    display: flex; /* Чтобы слова были в одной строке */
+}
+
+.logo-used {
+    color: var(--white); /* Белый цвет для "Used" */
+}
+
+.logo-parts {
+    color: #4a883f; /* Зеленый цвет для "Parts" */
+    margin-left: 5px; /* Небольшой отступ между словами */
+}
+
+.logo-circle {
+    width: 50px; /* Увеличенный размер */
+    height: 50px; /* Увеличенный размер */
+    background-color: var(--emerald);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-weight: bold;
+    font-size: 22px; /* Увеличенный размер шрифта */
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li {
+    margin-right: 40px; /* Увеличенный отступ */
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--white);
+    font-weight: 600; /* Более жирный шрифт */
+    font-size: 18px; /* Увеличенный размер шрифта */
+    transition: color 0.3s;
+    position: relative;
+    padding: 8px 0; /* Увеличенный padding */
+}
+
+.nav-links a:hover {
+    color: var(--emerald);
+}
+
+.main-content {
+    max-width: 1200px;
+    margin: 40px auto; /* Увеличенный отступ */
+    padding: 0 30px;
+}
+
+.info-cards {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 25px; /* Увеличенный отступ */
+}
+
+.info-card {
+    background-color: var(--white);
+    border-radius: 10px;
+    padding: 30px; /* Увеличенный padding */
+    box-shadow: 0 5px 8px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    min-width: 250px;
+    transition: transform 0.3s;
+}
+
+.info-card:hover {
+    transform: translateY(-7px); /* Увеличенный эффект при наведении */
+}
+
+.info-card h2 {
+    color: var(--emerald);
+    margin-top: 0;
+    border-bottom: 3px solid var(--emerald); /* Увеличенная граница */
+    padding-bottom: 15px; /* Увеличенный отступ */
+    font-size: 22px; /* Увеличенный размер шрифта */
+}
+
+.info-card p {
+    font-size: 16px; /* Увеличенный размер шрифта */
+    line-height: 1.7;
+}
+
+.footer {
+    background-color: var(--black);
+    color: var(--white);
+    text-align: center;
+    padding: 25px 0; /* Увеличенный padding */
+    margin-top: 50px; /* Увеличенный отступ */
+}
+
+.footer p {
+    margin: 8px 0; /* Увеличенный отступ */
+    font-size: 16px; /* Увеличенный размер шрифта */
+}
