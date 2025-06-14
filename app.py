@@ -12,6 +12,12 @@ def add_part():
     return render_template("add_part.html")
 
 
+@app.route("/sales_log")
+def sales_log():
+    return render_template("sales_log.html")
+
+
+
 
 if __name__ == '__main__':
     app.run()
