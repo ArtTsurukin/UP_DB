@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавление новой детали</title>
+</head>
+<body>
+    <h1>Добавление новой детали</h1>
+
+    <form action="/parts/new_part/added" method="POST">
+        <div>
+            <label for="name">Название детали:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div>
+            <label for="part_number">Артикул:</label>
+            <input type="text" id="part_number" name="part_number" required>
+        </div>
+
+        <div>
+            <label for="description">Описание:</label>
+            <textarea id="description" name="description" rows="7"></textarea>
+        </div>
+
+        <div>
+            <label for="price_in">Цена закупки:</label>
+            <input type="number" id="price_in" name="price_in" required>
+        </div>
+
+        <div>
+            <label for="price_out">Цена продажи:</label>
+            <input type="number" id="price_out" name="price_out" required>
+        </div>
+
+        <div>
+            <button type="submit">Добавить деталь</button>
+            <button type="reset">Очистить</button>
+        </div>
+    </form>
+</body>
+</html>
