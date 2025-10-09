@@ -14,7 +14,8 @@ def index():
 
 @app.route("/parts", methods=["GET"])
 def all_parts():
-    return "all parts"
+    parts = Part.query.all()
+    return render_template("all_parts.html" , parts=parts)
 
 @app.route("/parts/new_part", methods=["GET"])
 def new_part_form():
@@ -24,7 +25,7 @@ def new_part_form():
 def get_one_part(pid):
     try:
         part = db.session.get(Part, pid)
-        return f"{part.name}"
+        return render_template("part.html", part=part)
     except Exception as e:
         return f"error - {e}"
 
@@ -53,6 +54,28 @@ def add_new_part():
         return redirect('/parts')
     except (KeyError, ValueError) as e:
         return f"Ошибка в данных: {str(e)}", 400
+
+
+@app.route("/parts/<int:pid>/edit", methods=["GET", "POST"])
+def edit_part(pid):
+    part = Part.query.get_or_404(pid)
+
+    if request.method == "POST":
+        try:
+            # Обновляем все поля кроме id
+            part.name = request.form['name']
+            part.part_number = request.form['part_number']
+            part.description = request.form['description']
+            part.price_in = int(request.form['price_in'])
+            part.price_out = int(request.form['price_out'])
+
+            db.session.commit()
+            return redirect(f"/parts/{pid}")
+        except Exception as e:
+            return f"Ошибка при обновлении: {str(e)}", 400
+
+    # GET запрос - показываем форму редактирования
+    return render_template('edit_part.html', part=part)
 
 
 if __name__ == "__main__":

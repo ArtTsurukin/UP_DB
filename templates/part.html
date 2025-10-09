@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Деталь: {{ part.name }}</title>
+</head>
+<body>
+    <h1>Деталь: {{ part.name }}</h1>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <a href="/parts" style="display: inline-block; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
+        ← Назад к списку
+    </a>
+
+        <a href="/parts/{{ part.id }}/edit" style="display: inline-block; padding: 12px 0; background-color: #db9f07; color: black; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
+        Редактировать
+    </a>
+
+    <a href="/parts/new_part" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
+        Добавить деталь
+    </a>
+
+    <button onclick="deletePart({{ part.id }})" style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 4px; flex: 1; cursor: pointer;">
+        Удалить деталь
+    </button>
+</div>
+
+    <div style="max-width: 600px;">
+        <p><strong>ID:</strong> {{ part.id }}</p>
+        <p><strong>Название:</strong> {{ part.name }}</p>
+        <p><strong>Артикул:</strong> {{ part.part_number }}</p>
+        <p><strong>Описание:</strong> {{ part.description }}</p>
+        <p><strong>Цена закупки:</strong> {{ part.price_in }}</p>
+        <p><strong>Цена продажи:</strong> {{ part.price_out }}</p>
+    </div>
+
+    <script>
+        function deletePart(partId) {
+            if (confirm('Вы уверены, что хотите удалить эту деталь?')) {
+                fetch(`/parts/${partId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Деталь успешно удалена');
+                        window.location.href = '/parts';
+                    } else {
+                        alert('Ошибка при удалении детали');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка при удалении детали');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

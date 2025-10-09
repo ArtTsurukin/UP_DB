@@ -3,56 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавление новой детали</title>
+    <title>Редактирование детали: {{ part.name }}</title>
 </head>
 <body>
-    <h1>Добавление новой детали</h1>
+    <h1>Редактирование детали: {{ part.name }}</h1>
 
     <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <a href="/parts/{{ part.id }}" style="display: inline-block; padding: 12px 0; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
+            ← Назад к детали
+        </a>
+
         <a href="/parts" style="display: inline-block; padding: 12px 0; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
-            ← Назад к списку
+            ← К списку
         </a>
     </div>
 
-    <form action="/parts/new_part/added" method="POST" style="max-width: 600px;">
+    <form action="/parts/{{ part.id }}/edit" method="POST" style="max-width: 600px;">
         <div style="margin-bottom: 15px;">
             <label for="name" style="display: block; margin-bottom: 5px; font-weight: bold;">Название детали:</label>
-            <input type="text" id="name" name="name" required
+            <input type="text" id="name" name="name" value="{{ part.name }}" required
                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
         </div>
 
         <div style="margin-bottom: 15px;">
             <label for="part_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Артикул:</label>
-            <input type="text" id="part_number" name="part_number" required
+            <input type="text" id="part_number" name="part_number" value="{{ part.part_number }}" required
                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
         </div>
 
         <div style="margin-bottom: 15px;">
             <label for="description" style="display: block; margin-bottom: 5px; font-weight: bold;">Описание:</label>
-            <textarea id="description" name="description" rows="7"
-                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            <textarea id="description" name="description" rows="4"
+                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">{{ part.description }}</textarea>
         </div>
 
         <div style="margin-bottom: 15px;">
             <label for="price_in" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена закупки:</label>
-            <input type="number" id="price_in" name="price_in" min="0" required
+            <input type="number" id="price_in" name="price_in" value="{{ part.price_in }}" min="0" required
                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
         </div>
 
         <div style="margin-bottom: 20px;">
             <label for="price_out" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена продажи:</label>
-            <input type="number" id="price_out" name="price_out" min="0" required
+            <input type="number" id="price_out" name="price_out" value="{{ part.price_out }}" min="0" required
                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
         </div>
 
         <div style="display: flex; gap: 10px;">
             <button type="submit" style="padding: 12px 0; background-color: #28a745; color: white; border: none; border-radius: 4px; flex: 1; cursor: pointer;">
-                Добавить деталь
+                Сохранить изменения
             </button>
-            <button type="reset" style="padding: 12px 0; background-color: #6c757d; color: white; border: none; border-radius: 4px; flex: 1; cursor: pointer;">
-                Очистить
-            </button>
-            <a href="/parts" style="display: inline-block; padding: 12px 0; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
+            <a href="/parts/{{ part.id }}" style="display: inline-block; padding: 12px 0; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
                 Отмена
             </a>
         </div>
