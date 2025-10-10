@@ -4,59 +4,283 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактирование детали: {{ part.name }}</title>
+    <style>
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .image-item {
+            text-align: center;
+            position: relative;
+        }
+        .thumbnail {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        .main-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background-color: #007bff;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+        }
+        .set-main-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+            font-size: 12px;
+            margin-right: 5px;
+            font-family: Arial, sans-serif;
+        }
+        .nav-button {
+            display: inline-block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+        }
+        .form-button {
+            padding: 12px 0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            flex: 1;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
     <h1>Редактирование детали: {{ part.name }}</h1>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-        <a href="/parts/{{ part.id }}" style="display: inline-block; padding: 12px 0; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
-            ← Назад к детали
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <a href="/parts/{{ part.id }}" class="nav-button" style="background-color: #6c757d;">
+            Назад к детали
         </a>
-
-        <a href="/parts" style="display: inline-block; padding: 12px 0; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
-            ← К списку
+        <a href="/parts" class="nav-button" style="background-color: #0e298a;">
+            К списку
+        </a>
+        <a href="/" class="nav-button" style="background-color: #20994c;">
+            Главная
         </a>
     </div>
 
-    <form action="/parts/{{ part.id }}/edit" method="POST" style="max-width: 600px;">
-        <div style="margin-bottom: 15px;">
-            <label for="name" style="display: block; margin-bottom: 5px; font-weight: bold;">Название детали:</label>
-            <input type="text" id="name" name="name" value="{{ part.name }}" required
-                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-        </div>
+    <form action="/parts/{{ part.id }}/edit" method="POST" enctype="multipart/form-data" style="max-width: 800px;">
+        <!-- Основные поля -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <div style="margin-bottom: 15px;">
+                    <label for="name" style="display: block; margin-bottom: 5px; font-weight: bold;">Название детали:</label>
+                    <input type="text" id="name" name="name" value="{{ part.name }}" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">
+                </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="part_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Артикул:</label>
-            <input type="text" id="part_number" name="part_number" value="{{ part.part_number }}" required
-                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-        </div>
+                <div style="margin-bottom: 15px;">
+                    <label for="car" style="display: block; margin-bottom: 5px; font-weight: bold;">Авто:</label>
+                    <input type="text" id="car" name="car" value="{{ part.car }}"
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">
+                </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="description" style="display: block; margin-bottom: 5px; font-weight: bold;">Описание:</label>
-            <textarea id="description" name="description" rows="4"
-                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">{{ part.description }}</textarea>
-        </div>
+                <div style="margin-bottom: 15px;">
+                    <label for="part_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Кат. номер:</label>
+                    <input type="text" id="part_number" name="part_number" value="{{ part.part_number }}" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">
+                </div>
+            </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="price_in" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена закупки:</label>
-            <input type="number" id="price_in" name="price_in" value="{{ part.price_in }}" min="0" required
-                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <div>
+                <div style="margin-bottom: 15px;">
+                    <label for="price_in" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена закупки:</label>
+                    <input type="number" id="price_in" name="price_in" value="{{ part.price_in }}" min="0" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="price_out" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена продажи:</label>
+                    <input type="number" id="price_out" name="price_out" value="{{ part.price_out }}" min="0" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">
+                </div>
+            </div>
         </div>
 
         <div style="margin-bottom: 20px;">
-            <label for="price_out" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена продажи:</label>
-            <input type="number" id="price_out" name="price_out" value="{{ part.price_out }}" min="0" required
-                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <label for="description" style="display: block; margin-bottom: 5px; font-weight: bold;">Комментарии:</label>
+            <textarea id="description" name="description" rows="4"
+                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">{{ part.description }}</textarea>
         </div>
 
+        <!-- Существующие изображения -->
+        {% if part.images %}
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Текущие изображения:</label>
+            <div class="image-container">
+                {% for image in part.images %}
+                <div class="image-item">
+                    {% if image.is_main %}
+                    <div class="main-badge">Главное</div>
+                    {% endif %}
+                    <img src="{{ url_for('static', filename='uploads/parts/' + image.filename) }}"
+                         alt="{{ part.name }}"
+                         class="thumbnail">
+                    <div>
+                        {% if not image.is_main %}
+                        <button type="button" class="set-main-btn">
+                            Сделать главным
+                        </button>
+                        {% endif %}
+                        <button type="button" class="delete-btn">
+                            Удалить
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Загрузка новых изображений -->
+        <div style="margin-bottom: 20px;">
+            <label for="new_images" style="display: block; margin-bottom: 5px; font-weight: bold;">Добавить новые изображения:</label>
+            <input type="file" id="new_images" name="new_images" accept="image/*" multiple
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">
+            <small style="color: #666; font-family: Arial, sans-serif;">
+                Можно выбрать несколько файлов (максимум 10). Допустимые форматы: JPG, PNG, GIF, WEBP. Максимальный размер: 20MB на файл.
+            </small>
+            <div id="file-list" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- Скрытые поля для управления изображениями -->
+        <input type="hidden" id="images_to_delete" name="images_to_delete" value="">
+        <input type="hidden" id="main_image_id" name="main_image_id" value="
+            {%- for image in part.images -%}
+                {%- if image.is_main -%}
+                    {{ image.id }}
+                {%- endif -%}
+            {%- endfor -%}">
+
         <div style="display: flex; gap: 10px;">
-            <button type="submit" style="padding: 12px 0; background-color: #28a745; color: white; border: none; border-radius: 4px; flex: 1; cursor: pointer;">
+            <button type="submit" class="form-button" style="background-color: #28a745;">
                 Сохранить изменения
             </button>
-            <a href="/parts/{{ part.id }}" style="display: inline-block; padding: 12px 0; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
+            <a href="/parts/{{ part.id }}" class="nav-button" style="background-color: #6c757d; text-align: center;">
                 Отмена
             </a>
         </div>
     </form>
+
+    <script>
+        let imagesToDelete = [];
+
+        // Отображение списка выбранных файлов
+        document.getElementById('new_images').addEventListener('change', function(e) {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';
+
+            if (this.files.length > 0) {
+                const list = document.createElement('ul');
+                list.style.paddingLeft = '20px';
+                list.style.marginTop = '10px';
+                list.style.fontFamily = 'Arial, sans-serif';
+
+                for (let i = 0; i < this.files.length; i++) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = this.files[i].name + ' (' + (this.files[i].size / 1024 / 1024).toFixed(2) + ' MB)';
+                    list.appendChild(listItem);
+                }
+
+                fileList.appendChild(list);
+            }
+        });
+
+        // Удаление изображения
+        function deleteImage(imageId) {
+            if (confirm('Вы уверены, что хотите удалить это изображение?')) {
+                imagesToDelete.push(imageId);
+                document.getElementById('images_to_delete').value = imagesToDelete.join(',');
+
+                // Скрываем удаленное изображение
+                const imageElement = event.target.closest('.image-item');
+                imageElement.style.display = 'none';
+            }
+        }
+
+        // Установка главного изображения
+        function setAsMain(imageId) {
+            document.getElementById('main_image_id').value = imageId;
+
+            // Обновляем визуальное отображение
+            document.querySelectorAll('.main-badge').forEach(badge => {
+                badge.remove();
+            });
+
+            document.querySelectorAll('.set-main-btn').forEach(btn => {
+                btn.style.display = 'inline-block';
+            });
+
+            const currentImage = event.target.closest('.image-item');
+            const badge = document.createElement('div');
+            badge.className = 'main-badge';
+            badge.textContent = 'Главное';
+            currentImage.prepend(badge);
+
+            event.target.style.display = 'none';
+
+            alert('Изображение установлено как главное. Не забудьте сохранить изменения!');
+        }
+
+        // Добавляем обработчики событий для кнопок изображений
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const imageId = this.closest('.image-item').querySelector('img').src.split('/').pop().split('.')[0];
+                    deleteImage(imageId);
+                });
+            });
+
+            document.querySelectorAll('.set-main-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const imageId = this.closest('.image-item').querySelector('img').src.split('/').pop().split('.')[0];
+                    setAsMain(imageId);
+                });
+            });
+        });
+
+        // Предупреждение при уходе со страницы
+        window.addEventListener('beforeunload', function(e) {
+            if (imagesToDelete.length > 0 || document.getElementById('new_images').files.length > 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
 </body>
 </html>

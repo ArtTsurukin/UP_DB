@@ -4,41 +4,290 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Деталь: {{ part.name }}</title>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 90%;
+            margin-top: 2%;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .thumbnail {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .thumbnail:hover {
+            transform: scale(1.05);
+        }
+        .download-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-family: inherit;
+        }
+        .download-btn:hover {
+            background-color: #218838;
+        }
+        .nav-button {
+            display: inline-block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+        }
+        .preview-image {
+            cursor: zoom-in;
+            transition: transform 0.2s;
+        }
+        .preview-image:hover {
+            transform: scale(1.02);
+        }
+    </style>
 </head>
 <body>
     <h1>Деталь: {{ part.name }}</h1>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-    <a href="/parts" style="display: inline-block; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
-        ← Назад к списку
-    </a>
+    <!-- Навигационные кнопки -->
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <a href="/" class="nav-button" style="background-color: #20994c;">
+            Главная
+        </a>
+        <a href="/parts" class="nav-button" style="background-color: #6c757d;">
+            Все детали
+        </a>
+        <a href="/parts/{{ part.id }}/edit" class="nav-button" style="background-color: #ffc107; color: black;">
+            Редактировать
+        </a>
+        <button onclick="confirmDelete()" class="nav-button" style="background-color: #dc3545;">
+            Удалить
+        </button>
+    </div>
 
-        <a href="/parts/{{ part.id }}/edit" style="display: inline-block; padding: 12px 0; background-color: #db9f07; color: black; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
-        Редактировать
-    </a>
+    <!-- Основной контент -->
+    <div style="display: flex; gap: 30px; margin-bottom: 20px; flex-wrap: wrap;">
+        {% if part.images %}
+        <div style="flex: 0 0 400px;">
+            <!-- Главное фото (предпросмотр) -->
+            {% set main_image = part.images|selectattr("is_main")|first or part.images[0] %}
+            <div style="margin-bottom: 15px; text-align: center;">
+                <img src="{{ url_for('static', filename='uploads/parts/' + main_image.filename) }}"
+                     alt="{{ part.name }}"
+                     class="preview-image"
+                     id="mainPreview"
+                     style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 1px solid #ddd;"
+                     onclick="openModal('{{ url_for('static', filename='uploads/parts/' + main_image.filename) }}')">
 
-    <a href="/parts/new_part" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; flex: 1; text-align: center;">
-        Добавить деталь
-    </a>
 
-    <button onclick="deletePart({{ part.id }})" style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 4px; flex: 1; cursor: pointer;">
-        Удалить деталь
-    </button>
-</div>
+            </div>
 
-    <div style="max-width: 600px;">
-        <p><strong>ID:</strong> {{ part.id }}</p>
-        <p><strong>Название:</strong> {{ part.name }}</p>
-        <p><strong>Артикул:</strong> {{ part.part_number }}</p>
-        <p><strong>Описание:</strong> {{ part.description }}</p>
-        <p><strong>Цена закупки:</strong> {{ part.price_in }}</p>
-        <p><strong>Цена продажи:</strong> {{ part.price_out }}</p>
+            <!-- Галерея превью -->
+            {% if part.images|length > 1 %}
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                {% for image in part.images %}
+                <div style="text-align: center;">
+                    <img src="{{ url_for('static', filename='uploads/parts/' + image.filename) }}"
+                         alt="{{ part.name }}"
+                         class="thumbnail"
+                         style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer; border: {% if image.is_main %}2px solid #007bff{% else %}1px solid #ddd{% endif %};"
+                         onclick="changePreviewImage('{{ url_for('static', filename='uploads/parts/' + image.filename) }}', '{{ image.filename }}')">
+                    <div style="margin-top: 5px;">
+                        <small>
+                            <a href="javascript:void(0)" onclick="downloadImage('{{ image.filename }}', '{{ part.name }}_{{ loop.index }}')" style="color: #007bff; text-decoration: none; font-family: Arial, sans-serif;">
+                                Скачать
+                            </a>
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div style="flex: 0 0 400px; text-align: center;">
+            <div style="width: 100%; height: 300px; background-color: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #6c757d; border: 2px dashed #dee2e6; font-family: Arial, sans-serif;">
+                Нет изображений
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Информация о детали -->
+        <div style="flex: 1; min-width: 300px;">
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; font-family: Arial, sans-serif;">
+                <p><strong>Артикул:</strong> {{ part.id }}</p>
+                <p><strong>Наименования:</strong> {{ part.name }}</p>
+                <p><strong>Авто:</strong> {{ part.car }}</p>
+                <p><strong>Кат. номер:</strong> {{ part.part_number }}</p>
+                <p><strong>Комментарии:</strong> {{ part.description }}</p>
+                <p><strong>Цена закупки:</strong> {{ part.price_in }} руб.</p>
+                <p><strong>Цена продажи:</strong> {{ part.price_out }} руб.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для полноэкранного просмотра -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);">
+            <button class="download-btn" onclick="downloadCurrentImage()" style="font-size: 16px;">
+                Скачать
+            </button>
+        </div>
     </div>
 
     <script>
-        function deletePart(partId) {
-            if (confirm('Вы уверены, что хотите удалить эту деталь?')) {
-                fetch(`/parts/${partId}`, {
+        let currentImageFilename = '';
+        let currentImageName = '';
+        let currentImageIndex = 0;
+        let images = [];
+
+        // Инициализация массива изображений при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if part.images %}
+            images = [
+                {% for image in part.images %}
+                {
+                    src: "{{ url_for('static', filename='uploads/parts/' + image.filename) }}",
+                    filename: "{{ image.filename }}"
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ];
+            {% endif %}
+        });
+
+        // Смена изображения в предпросмотре
+        function changePreviewImage(imageSrc, filename) {
+            const mainPreview = document.getElementById('mainPreview');
+            if (mainPreview) {
+                mainPreview.src = imageSrc;
+                currentImageFilename = filename;
+
+                // Обновляем границы у превьюшек
+                document.querySelectorAll('.thumbnail').forEach(thumb => {
+                    thumb.style.border = '1px solid #ddd';
+                });
+
+                // Подсвечиваем выбранное превью
+                event.target.style.border = '2px solid #007bff';
+            }
+        }
+
+        // Функции для модального окна
+        function openModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = imageSrc;
+
+            // Находим индекс текущего изображения
+            currentImageIndex = images.findIndex(img => img.src === imageSrc);
+            if (currentImageIndex === -1) currentImageIndex = 0;
+
+            // Получаем имя файла из пути
+            const pathParts = imageSrc.split('/');
+            currentImageFilename = pathParts[pathParts.length - 1];
+            currentImageName = '{{ part.name }}';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        // Навигация по изображениям в модальном окне
+        function navigateImages(direction) {
+            if (images.length <= 1) return;
+
+            currentImageIndex += direction;
+            if (currentImageIndex < 0) currentImageIndex = images.length - 1;
+            if (currentImageIndex >= images.length) currentImageIndex = 0;
+
+            const modalImg = document.getElementById('modalImage');
+            modalImg.src = images[currentImageIndex].src;
+            currentImageFilename = images[currentImageIndex].filename;
+        }
+
+        // Обработчики клавиш для навигации
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('imageModal');
+            if (modal.style.display === 'block') {
+                if (e.key === 'Escape') {
+                    closeModal();
+                } else if (e.key === 'ArrowLeft') {
+                    navigateImages(-1);
+                } else if (e.key === 'ArrowRight') {
+                    navigateImages(1);
+                }
+            }
+        });
+
+        // Обработчик клика по изображению в модальном окне для навигации
+        document.getElementById('modalImage').addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+
+            // Если клик в левой трети - предыдущее изображение
+            if (clickX < rect.width / 3) {
+                navigateImages(-1);
+            }
+            // Если клик в правой трети - следующее изображение
+            else if (clickX > rect.width * 2 / 3) {
+                navigateImages(1);
+            }
+            // Иначе закрываем модальное окно (клик по центру)
+            else {
+                closeModal();
+            }
+        });
+
+        // Скачивание изображения
+        function downloadImage(filename, customName = '') {
+            const imageUrl = "{{ url_for('static', filename='uploads/parts/') }}" + filename;
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = customName + '.' + filename.split('.').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function downloadCurrentImage() {
+            if (currentImageFilename) {
+                downloadImage(currentImageFilename, currentImageName);
+            }
+        }
+
+        // Подтверждение удаления
+        function confirmDelete() {
+            if (confirm('Вы уверены, что хотите удалить эту деталь? Это действие нельзя отменить.')) {
+                fetch("/parts/{{ part.id }}", {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -49,12 +298,14 @@
                         alert('Деталь успешно удалена');
                         window.location.href = '/parts';
                     } else {
-                        alert('Ошибка при удалении детали');
+                        response.text().then(text => {
+                            alert('Ошибка при удалении детали: ' + text);
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Ошибка при удалении детали');
+                    alert('Ошибка при удалении детали: ' + error);
                 });
             }
         }

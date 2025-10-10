@@ -12,10 +12,33 @@
         .clickable-row:hover {
             background-color: #2596be;
         }
+        .thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .no-image {
+            width: 50px;
+            height: 50px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px dashed #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
     <h1>Список деталей</h1>
+
+    <a href="/" style="display: inline-block; padding: 10px 20px; background-color: #167003; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 20px;">
+        Главная
+    </a>
 
     <a href="/parts/new_part" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 20px;">
         Добавить деталь
@@ -24,23 +47,36 @@
     <table border="1" style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr>
+                <th style="padding: 8px;">Фото</th>
                 <th style="padding: 8px;">ID</th>
                 <th style="padding: 8px;">Название</th>
-                <th style="padding: 8px;">Артикул</th>
-                <th style="padding: 8px;">Описание</th>
+                <th style="padding: 8px;">Авто</th>
+                <th style="padding: 8px;">Кат. номер</th>
                 <th style="padding: 8px;">Цена закупки</th>
                 <th style="padding: 8px;">Цена продажи</th>
+                <th style="padding: 8px;">Комментарии</th>
             </tr>
         </thead>
         <tbody>
             {% for part in parts %}
             <tr class="clickable-row" onclick="window.location.href='/parts/{{ part.id }}'">
+                <td style="padding: 8px; text-align: center;">
+                    {% if part.images %}
+                        {% set main_image = part.images|selectattr("is_main")|first or part.images[0] %}
+                        <img src="{{ url_for('static', filename='uploads/parts/' + main_image.filename) }}"
+                             alt="{{ part.name }}"
+                             class="thumbnail">
+                    {% else %}
+                        <div class="no-image">Нет фото</div>
+                    {% endif %}
+                </td>
                 <td style="padding: 8px;">{{ part.id }}</td>
                 <td style="padding: 8px;">{{ part.name }}</td>
+                <td style="padding: 8px;">{{ part.car }}</td>
                 <td style="padding: 8px;">{{ part.part_number }}</td>
-                <td style="padding: 8px;">{{ part.description }}</td>
                 <td style="padding: 8px;">{{ part.price_in }}</td>
                 <td style="padding: 8px;">{{ part.price_out }}</td>
+                <td style="padding: 8px;">{{ part.description }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -58,7 +94,7 @@
                 row.addEventListener('click', function() {
                     window.location.href = this.getAttribute('data-href') ||
                                          this.querySelector('a')?.href ||
-                                         `/parts/${this.cells[0].textContent.trim()}`;
+                                         `/parts/${this.cells[1].textContent.trim()}`; // Изменили индекс на 1, так как добавилась колонка с фото
                 });
             });
         });

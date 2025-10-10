@@ -1,21 +1,146 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Main Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Used Parts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #ffffff;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+        }
+        .logo {
+            margin-bottom: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .logo img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .login-form {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #038f1a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .login-btn:hover {
+            background-color: #027016;
+        }
+        .nav-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .nav-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .nav-button:hover {
+            background-color: #545b62;
+        }
+    </style>
 </head>
 <body>
-<h1>Главная страница</h1>
+    <div class="container">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='up_2.jpg') }}" alt="Эмблема Used Parts">
+        </div>
 
-<h3>Used Parts</h3>
+        <div class="login-form">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Логин:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
 
-<a href="/parts/new_part" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 20px;">
-        Добавить деталь
-    </a>
+                <div class="form-group">
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
 
-<a href="/parts" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 20px;">
-        Все детали
-    </a>
+                <button type="submit" class="login-btn">Войти</button>
+            </form>
+        </div>
 
+        <div class="nav-buttons">
+            <a href="/parts" class="nav-button">
+                Все детали
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Предотвращаем отправку формы
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Здесь можно добавить проверку логина и пароля
+            console.log('Логин:', username);
+            console.log('Пароль:', password);
+
+            // Пока просто показываем сообщение
+            alert('Форма авторизации отправлена. Логин: ' + username);
+
+            // Очищаем форму после "отправки"
+            this.reset();
+        });
+    </script>
 </body>
 </html>

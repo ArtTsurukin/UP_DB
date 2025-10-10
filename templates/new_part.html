@@ -14,7 +14,7 @@
         </a>
     </div>
 
-    <form action="/parts/new_part/added" method="POST" style="max-width: 600px;">
+    <form action="/parts/new_part/added" method="POST" enctype="multipart/form-data" style="max-width: 600px;">
         <div style="margin-bottom: 15px;">
             <label for="name" style="display: block; margin-bottom: 5px; font-weight: bold;">Название детали:</label>
             <input type="text" id="name" name="name" required
@@ -22,13 +22,19 @@
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label for="part_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Артикул:</label>
+            <label for="part_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Авто:</label>
+            <input type="text" id="car" name="car" required
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="part_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Кат. номер:</label>
             <input type="text" id="part_number" name="part_number" required
                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
         </div>
 
         <div style="margin-bottom: 15px;">
-            <label for="description" style="display: block; margin-bottom: 5px; font-weight: bold;">Описание:</label>
+            <label for="description" style="display: block; margin-bottom: 5px; font-weight: bold;">Комментарии:</label>
             <textarea id="description" name="description" rows="7"
                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
         </div>
@@ -39,10 +45,21 @@
                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
         </div>
 
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 15px;">
             <label for="price_out" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена продажи:</label>
             <input type="number" id="price_out" name="price_out" min="0" required
                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label for="images" style="display: block; margin-bottom: 5px; font-weight: bold;">Изображения детали:</label>
+            <input type="file" id="images" name="images" accept="image/*" multiple
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <small style="color: #666;">
+                Допустимые форматы: JPG, PNG, HEIC, WEBP. Максимальный размер: 20MB на файл.
+                Можно выбрать несколько файлов (максимум 20)
+            </small>
+            <div id="file-list" style="margin-top: 10px;"></div>
         </div>
 
         <div style="display: flex; gap: 10px;">
@@ -57,5 +74,26 @@
             </a>
         </div>
     </form>
+
+    <script>
+        document.getElementById('images').addEventListener('change', function(e) {
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';
+
+            if (this.files.length > 0) {
+                const list = document.createElement('ul');
+                list.style.paddingLeft = '20px';
+                list.style.marginTop = '10px';
+
+                for (let i = 0; i < this.files.length; i++) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = this.files[i].name + ' (' + (this.files[i].size / 1024 / 1024).toFixed(2) + ' MB)';
+                    list.appendChild(listItem);
+                }
+
+                fileList.appendChild(list);
+            }
+        });
+    </script>
 </body>
 </html>
