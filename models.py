@@ -18,7 +18,6 @@ class PartImage(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.now())
 
     part = db.relationship('Part', backref=db.backref('images', cascade='all, delete-orphan'))
-реал
 
 class Part(db.Model):
     __tablename__ = "parts"

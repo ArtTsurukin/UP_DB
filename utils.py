@@ -23,3 +23,4 @@ def generate_unique_filename(original_filename):
     ext = original_filename.rsplit('.', 1)[1].lower()
     unique_id = uuid.uuid4().hex
     return f"{unique_id}.{ext}"
+

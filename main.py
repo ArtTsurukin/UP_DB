@@ -1,33 +1,171 @@
-from flask import Flask, render_template, request, redirect, current_app
+from flask import Flask, render_template, request, redirect, current_app, jsonify, session
 from utils import allowed_file, get_upload_path, generate_unique_filename, MAX_FILES, MAX_FILE_SIZE
 from werkzeug.utils import secure_filename
+from functools import wraps
+from security import password_hasher
+import argon2
 import os
+import jwt
+import datetime
+from werkzeug.security import check_password_hash, generate_password_hash
+from sqlalchemy import or_
 
 from models import User, Part, PartImage, db
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///updb.db"
+app.config["SECRET_KEY"] = "TEST_KEY_SECRET_EXAMPLE"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(minutes=60)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = datetime.timedelta(weeks=2)
+
+
+# Декоратор для проверки авторизации и прав admin
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        token = request.headers.get('Authorization')
+
+        if not token:
+            # Проверяем сессию для веб-запросов
+            if 'user_id' not in session:
+                return redirect('/login')
+
+            user = User.query.get(session['user_id'])
+            if not user or user.login != 'admin':
+                return redirect('/login')
+
+            return f(*args, **kwargs)
+
+        # Проверяем JWT токен для API запросов
+        try:
+            if token.startswith('Bearer '):
+                token = token[7:]
+
+            payload = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+            user = User.query.get(payload['user_id'])
+
+            if not user or user.login != 'admin':
+                return jsonify({'error': 'Admin access required'}), 403
+
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def create_access_token(user_id):
+    expires = datetime.datetime.utcnow() + app.config["JWT_ACCESS_TOKEN_EXPIRES"]
+    token = jwt.encode({
+        'user_id': user_id,
+        'exp': expires,
+        'type': 'access'
+    }, app.config['SECRET_KEY'], algorithm='HS256')
+    return token
+
+
+def create_refresh_token(user_id):
+    expires = datetime.datetime.utcnow() + app.config["JWT_REFRESH_TOKEN_EXPIRES"]
+    token = jwt.encode({
+        'user_id': user_id,
+        'exp': expires,
+        'type': 'refresh'
+    }, app.config['SECRET_KEY'], algorithm='HS256')
+    return token
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        try:
+            username = request.form.get("username")
+            password = request.form.get("password")
+
+            user = User.query.filter_by(login=username).first()
+
+            if user and password_hasher.verify_password(user.password, password):
+                # Сессия для браузера
+                session['user_id'] = user.id
+                session['username'] = user.login
+
+                # JWT для API
+                access_token = create_access_token(user.id)
+                refresh_token = create_refresh_token(user.id)
+
+                if request.headers.get('Content-Type') == 'application/json':
+                    return jsonify({
+                        'access_token': access_token,
+                        'refresh_token': refresh_token,
+                        'user': user.login
+                    })
+
+                return redirect('/')
+            else:
+                error = "Неверный логин или пароль"
+                if request.headers.get('Content-Type') == 'application/json':
+                    return jsonify({'error': error}), 401
+                return render_template("login.html", error=error)
+
+        except Exception as e:
+            error = f"Ошибка авторизации: {str(e)}"
+            if request.headers.get('Content-Type') == 'application/json':
+                return jsonify({'error': error}), 500
+            return render_template("login.html", error=error)
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect('/login')
+
+
+@app.route("/refresh", methods=["POST"])
+def refresh_token():
+    try:
+        refresh_token = request.json.get('refresh_token')
+        if not refresh_token:
+            return jsonify({'error': 'Refresh token required'}), 400
+
+        payload = jwt.decode(refresh_token, app.config['SECRET_KEY'], algorithms=['HS256'])
+
+        if payload.get('type') != 'refresh':
+            return jsonify({'error': 'Invalid token type'}), 401
+
+        user = User.query.get(payload['user_id'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 401
+
+        new_access_token = create_access_token(user.id)
+        return jsonify({'access_token': new_access_token})
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'error': 'Refresh token expired'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'error': 'Invalid refresh token'}), 401
 
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/parts", methods=["GET"])
 def all_parts():
     parts = Part.query.options(db.joinedload(Part.images)).all()
-    return render_template("all_parts.html" , parts=parts)
-
-@app.route("/parts/<int:pid>")
-def part_detail(pid):
-    part = Part.query.options(db.joinedload(Part.images)).get_or_404(pid)
-    return render_template("part.html", part=part)
+    return render_template("all_parts.html", parts=parts)
 
 
 
 @app.route("/parts/new_part", methods=["GET"])
+@admin_required
 def new_part_form():
     return render_template("new_part.html")
+
 
 @app.route("/parts/<int:pid>", methods=["GET"])
 def get_one_part(pid):
@@ -35,10 +173,11 @@ def get_one_part(pid):
         part = db.session.get(Part, pid)
         return render_template("part.html", part=part)
     except Exception as e:
-        return f"error - {e}"
+        return f"Деталь не найдена - {e}"
 
 
 @app.route("/parts/<int:pid>", methods=["DELETE"])
+@admin_required
 def delete_one_part(pid):
     try:
         to_delete = db.session.get(Part, pid)
@@ -68,6 +207,7 @@ def delete_one_part(pid):
 
 
 @app.route("/parts/new_part/added", methods=["POST"])
+@admin_required
 def add_part():
     try:
         # Проверяем количество файлов
@@ -136,6 +276,7 @@ def add_part():
 
 
 @app.route("/parts/<int:pid>/edit", methods=["GET", "POST"])
+@admin_required
 def edit_part(pid):
     part = Part.query.get_or_404(pid)
 
@@ -152,13 +293,13 @@ def edit_part(pid):
             if 'image' in request.files:
                 image_file = request.files['image']
                 if image_file and image_file.filename != '' and allowed_file(image_file.filename):
-                    # Удаляем старое изображение если есть
+                    # Удаленик старое изображение если есть
                     if part.image_filename:
                         old_image_path = os.path.join(get_upload_path(), part.image_filename)
                         if os.path.exists(old_image_path):
                             os.remove(old_image_path)
 
-                    # Сохраняем новое
+                    # Сохранение нового изображения
                     filename = secure_filename(image_file.filename)
                     unique_filename = f"{part.part_number}_{filename}"
                     upload_path = get_upload_path()
@@ -173,9 +314,57 @@ def edit_part(pid):
     return render_template('edit_part.html', part=part)
 
 
+@app.route("/search", methods=["GET"])
+def search():
+    search_request = request.args.get("q")
+
+    if not search_request:
+        return render_template("index.html")
+
+    try:
+        conditions = []
+
+        if search_request.isdigit():
+            conditions.append(Part.id == int(search_request))
+
+        search_pattern = f"%{search_request}%"
+        conditions.extend([
+            Part.name.ilike(search_pattern),
+            Part.car.ilike(search_pattern),
+            Part.part_number.ilike(search_pattern),
+            Part.description.ilike(search_pattern)
+        ])
+
+        parts = Part.query.filter(or_(*conditions)).all()
+
+        return render_template(
+            "all_parts.html",
+            parts=parts
+        )
+
+    except Exception as e:
+        return f"Ошибка при поиске: {str(e)}", 500
+
+
+
+def create_admin_user():
+    with app.app_context():
+        admin = User.query.filter_by(login='admin').first()
+        if not admin:
+            password_hash = password_hasher.hash_password("!Fdvj23mn@i")
+            admin = User(
+                login='admin',
+                password=password_hash
+            )
+            db.session.add(admin)
+            db.session.commit()
+
+
+
+
 if __name__ == "__main__":
-    # with app.app_context():
-    #     db.init_app(app)
-    #     db.create_all()
     db.init_app(app)
+    with app.app_context():
+        db.create_all()
+        create_admin_user()
     app.run()
