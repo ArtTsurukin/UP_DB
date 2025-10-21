@@ -1,4 +1,5 @@
-from setup_db import db
+from flask_sqlalchemy import SQLAlchemy
+from .extensions import db
 
 class User(db.Model):
     __tablename__ = "users"
@@ -6,7 +7,6 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(255))
     password = db.Column(db.String(255))
-
 
 class PartImage(db.Model):
     __tablename__ = "part_images"
@@ -29,6 +29,3 @@ class Part(db.Model):
     description = db.Column(db.String(255))
     price_in = db.Column(db.Integer)
     price_out = db.Column(db.Integer)
-
-
-
