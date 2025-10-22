@@ -58,6 +58,25 @@
             transform: translateY(-1px);
         }
 
+        /* Кнопка Выйти */
+        .logout-button {
+            padding: 10px 25px;
+            background: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
         /* Стиль для отображения логина */
         .user-login {
             padding: 10px 20px;
@@ -98,6 +117,7 @@
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            width: 100%;
         }
 
         .nav-button:hover {
@@ -152,15 +172,6 @@
             transform: translateY(-1px);
         }
 
-        .user-info {
-            margin-bottom: 20px;
-            padding: 10px;
-            background: #e7f3ff;
-            border-radius: 5px;
-            color: #0066cc;
-            font-weight: 500;
-        }
-
         @media (max-width: 600px) {
             .container {
                 padding: 0 20px;
@@ -196,6 +207,7 @@
                 <div class="user-login">
                     {{ session.username }}
                 </div>
+                <a href="/logout" class="logout-button">Выйти</a>
             {% else %}
                 <a href="/login" class="login-button">Войти</a>
             {% endif %}
@@ -205,19 +217,14 @@
             <img src="{{ url_for('static', filename='up_2.jpg') }}" alt="Эмблемa Used Parts">
         </div>
 
-        {% if session.username %}
-        <div class="user-info">
-            Вы вошли как: <strong>{{ session.username }}</strong>
-        </div>
-        {% endif %}
-
         <div class="buttons-container">
             <a href="/parts" class="nav-button">Все детали</a>
+            <a href="/sales" class="nav-button">Журнал продаж</a>
         </div>
 
         <div class="search-form">
             <h3>Поиск деталей</h3>
-            <form action="/search" method="GET"> <!--onsubmit="handleSearch(event)"> -->
+            <form action="/search" method="GET">
                 <input
                     type="text"
                     name="q"

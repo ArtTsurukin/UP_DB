@@ -94,7 +94,7 @@ def create_admin_user():
     admin = User.query.filter_by(login='admin').first()
     if not admin:
         password_hasher = PasswordHasher()
-        password_hash = password_hasher.hash_password("!Fdvj23mn@i")
+        password_hash = password_hasher.hash_password("12345")
         admin = User(
             login='admin',
             password=password_hash

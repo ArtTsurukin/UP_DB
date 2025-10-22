@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Продажа #{{ sale.id }}</title>
+    <style>
+        .nav-button {
+            display: inline-block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .sale-info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #666;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .items-table th,
+        .items-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .items-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .summary {
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-width: 400px;
+            margin-left: auto;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-family: Arial, sans-serif;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 18px;
+            color: #28a745;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        .deleted-part {
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Продажа #{{ sale.id }}</h1>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <a href="/sales" class="nav-button" style="background-color: #6c757d;">
+            ← Назад к журналу
+        </a>
+        <a href="/sales/new" class="nav-button" style="background-color: #007bff;">
+            Новая продажа
+        </a>
+        <a href="/" class="nav-button" style="background-color: #20994c;">
+            Главная
+        </a>
+    </div>
+
+    <!-- Информация о продаже -->
+    <div class="sale-info">
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Дата и время:</div>
+                <div>{{ sale.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Транспортная компания:</div>
+                <div>{{ sale.transport_company or 'Не указана' }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Трек номер:</div>
+                <div>{{ sale.tracking_number or 'Не указан' }}</div>
+            </div>
+            {% if sale.discount_value > 0 %}
+            <div class="info-item">
+                <div class="info-label">Скидка:</div>
+                <div>{{ sale.discount_value }}{% if sale.discount_type == 'percent' %}%{% else %} руб.{% endif %}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Товары -->
+    <h3>Товары в продаже</h3>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Наименование</th>
+                <th>Артикул</th>
+                <th>Авто</th>
+                <th>Цена за шт.</th>
+                <th>Кол-во</th>
+                <th>Сумма</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in sale.items %}
+            <tr>
+                <td>
+                    {{ item.part_name }}
+                    {% if not item.part %}
+                        <span class="deleted-part">(товар удален из базы)</span>
+                    {% endif %}
+                </td>
+                <td>{{ item.part_number }}</td>
+                <td>{{ item.part_car }}</td>
+                <td>{{ item.unit_price }} руб.</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.total_price }} руб.</td>
+                <td>
+                    {% if item.part %}
+                        <span style="color: #28a745;">● В базе</span>
+                    {% else %}
+                        <span style="color: #dc3545;">● Удален</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Итоги -->
+    <div class="summary">
+        <div class="summary-item">
+            <span>Общая сумма:</span>
+            <span>{{ sale.total_amount }} руб.</span>
+        </div>
+        {% if sale.discount_value > 0 %}
+        <div class="summary-item">
+            <span>Скидка:</span>
+            <span>
+                {{ sale.discount_value }}{% if sale.discount_type == 'percent' %}%{% else %} руб.{% endif %}
+                ({{ sale.total_amount - sale.final_amount }} руб.)
+            </span>
+        </div>
+        {% endif %}
+        <div class="summary-item total">
+            <span>Итого к оплате:</span>
+            <span>{{ sale.final_amount }} руб.</span>
+        </div>
+    </div>
+</body>
+</html>

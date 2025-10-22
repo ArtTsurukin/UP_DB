@@ -10,7 +10,7 @@
             transition: background-color 0.2s;
         }
         .clickable-row:hover {
-            background-color: #2596be;
+            background-color: #f5f5f5;
         }
         .thumbnail {
             width: 50px;
@@ -29,76 +29,124 @@
             align-items: center;
             justify-content: center;
             color: #6c757d;
-            font-size: 12px;
+            font-size: 10px;
+            text-align: center;
+            padding: 2px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .nav-buttons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-button {
+            display: inline-block;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
+    <div class="nav-buttons">
+        <a href="/" class="nav-button" style="background-color: #167003;">
+            Главная
+        </a>
+        <a href="/parts/new_part" class="nav-button" style="background-color: #007bff;">
+            Добавить деталь
+        </a>
+        <a href="/logout" class="nav-button" style="background-color: #dc3545;">
+            Выйти
+        </a>
+    </div>
 
-
-    <a href="/" style="display: inline-block; padding: 10px 20px; background-color: #167003; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 20px;">
-        Главная
-    </a>
-
-    <a href="/parts/new_part" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 20px;">
-        Добавить деталь
-    </a>
-
-    <a href="/logout" style="display: inline-block; padding: 10px 20px; background-color: #167003; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 20px;">
-        Выйти
-    </a>
-
-    <table border="1" style="width: 100%; border-collapse: collapse;">
+    <table>
         <thead>
             <tr>
-                <th style="padding: 8px;">Фото</th>
-                <th style="padding: 8px;">ID</th>
-                <th style="padding: 8px;">Название</th>
-                <th style="padding: 8px;">Авто</th>
-                <th style="padding: 8px;">Кат. номер</th>
-                <th style="padding: 8px;">Цена закупки</th>
-                <th style="padding: 8px;">Цена продажи</th>
-                <th style="padding: 8px;">Комментарии</th>
+                <th>Фото</th>
+                <th>Артикул</th>
+                <th>Название</th>
+                <th>Авто</th>
+                <th>Кат. номер</th>
+                <th>Цена закупки</th>
+                <th>Цена продажи</th>
+                <th>Количество</th>
+                <th>Комментарии</th>
             </tr>
         </thead>
         <tbody>
             {% for part in parts %}
             <tr class="clickable-row" onclick="window.location.href='/parts/{{ part.id }}'">
-                <td style="padding: 8px; text-align: center;">
+                <td style="text-align: center;">
                     {% if part.images %}
                         {% set main_image = part.images|selectattr("is_main")|first or part.images[0] %}
-                        <img src="{{ url_for('static', filename='uploads/parts/' + main_image.filename) }}"
+                        <img src="{{ url_for('static', filename='uploads/parts/' + part.id|string + '/' + main_image.filename) }}"
                              alt="{{ part.name }}"
-                             class="thumbnail">
+                             class="thumbnail"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="no-image" style="display: none;">Ошибка загрузки</div>
                     {% else %}
                         <div class="no-image">Нет фото</div>
                     {% endif %}
                 </td>
-                <td style="padding: 8px;">{{ part.id }}</td>
-                <td style="padding: 8px;">{{ part.name }}</td>
-                <td style="padding: 8px;">{{ part.car }}</td>
-                <td style="padding: 8px;">{{ part.part_number }}</td>
-                <td style="padding: 8px;">{{ part.price_in }}</td>
-                <td style="padding: 8px;">{{ part.price_out }}</td>
-                <td style="padding: 8px;">{{ part.description }}</td>
+                <td>{{ part.id }}</td>
+                <td>{{ part.name }}</td>
+                <td>{{ part.car }}</td>
+                <td>{{ part.part_number }}</td>
+                <td>{{ part.price_in }} руб.</td>
+                <td>{{ part.price_out }} руб.</td>
+                <td>{{ part.quantity }} шт.</td>
+                <td>{{ part.description|truncate(50) if part.description else '' }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
     {% if not parts %}
-    <p style="text-align: center; margin-top: 20px;">Детали не найдены</p>
+    <p style="text-align: center; margin-top: 20px; color: #6c757d;">Детали не найдены</p>
     {% endif %}
 
     <script>
-        // Добавляем обработчики для всей строки
+        // Обработка ошибок загрузки изображений
         document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('.thumbnail');
+            images.forEach(img => {
+                img.addEventListener('error', function() {
+                    this.style.display = 'none';
+                    const noImageDiv = this.nextElementSibling;
+                    if (noImageDiv && noImageDiv.classList.contains('no-image')) {
+                        noImageDiv.style.display = 'flex';
+                    }
+                });
+            });
+
+            // Обработка клика по строке
             const rows = document.querySelectorAll('.clickable-row');
             rows.forEach(row => {
-                row.addEventListener('click', function() {
-                    window.location.href = this.getAttribute('data-href') ||
-                                         this.querySelector('a')?.href ||
-                                         `/parts/${this.cells[1].textContent.trim()}`; // Изменили индекс на 1, так как добавилась колонка с фото
+                row.addEventListener('click', function(e) {
+                    // Проверяем, не был ли клик по ссылке или кнопке внутри строки
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                        return;
+                    }
+                    window.location.href = `/parts/${this.cells[1].textContent.trim()}`;
                 });
             });
         });

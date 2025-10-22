@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Добавление новой детали</title>
+    <style>
+        .file-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .file-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
     <h1>Добавление новой детали</h1>
@@ -15,22 +34,46 @@
     </div>
 
     <form action="/parts/new_part/added" method="POST" enctype="multipart/form-data" style="max-width: 600px;">
-        <div style="margin-bottom: 15px;">
-            <label for="name" style="display: block; margin-bottom: 5px; font-weight: bold;">Название детали:</label>
-            <input type="text" id="name" name="name" required
-                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-        </div>
+        <div class="form-grid">
+            <div>
+                <div style="margin-bottom: 15px;">
+                    <label for="name" style="display: block; margin-bottom: 5px; font-weight: bold;">Название детали:</label>
+                    <input type="text" id="name" name="name" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="part_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Авто:</label>
-            <input type="text" id="car" name="car" required
-                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-        </div>
+                <div style="margin-bottom: 15px;">
+                    <label for="car" style="display: block; margin-bottom: 5px; font-weight: bold;">Авто:</label>
+                    <input type="text" id="car" name="car" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="part_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Кат. номер:</label>
-            <input type="text" id="part_number" name="part_number" required
-                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <div style="margin-bottom: 15px;">
+                    <label for="part_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Кат. номер:</label>
+                    <input type="text" id="part_number" name="part_number" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+            </div>
+
+            <div>
+                <div style="margin-bottom: 15px;">
+                    <label for="quantity" style="display: block; margin-bottom: 5px; font-weight: bold;">Количество:</label>
+                    <input type="number" id="quantity" name="quantity" min="1" value="1" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="price_in" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена закупки:</label>
+                    <input type="number" id="price_in" name="price_in" min="0" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="price_out" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена продажи:</label>
+                    <input type="number" id="price_out" name="price_out" min="0" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+            </div>
         </div>
 
         <div style="margin-bottom: 15px;">
@@ -39,19 +82,8 @@
                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="price_in" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена закупки:</label>
-            <input type="number" id="price_in" name="price_in" min="0" required
-                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <label for="price_out" style="display: block; margin-bottom: 5px; font-weight: bold;">Цена продажи:</label>
-            <input type="number" id="price_out" name="price_out" min="0" required
-                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-        </div>
-
-        <div style="margin-bottom: 20px;">
+        <!-- Секция загрузки изображений -->
+        <div class="file-section">
             <label for="images" style="display: block; margin-bottom: 5px; font-weight: bold;">Изображения детали:</label>
             <input type="file" id="images" name="images" accept="image/*" multiple
                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
@@ -59,7 +91,19 @@
                 Допустимые форматы: JPG, PNG, HEIC, WEBP. Максимальный размер: 20MB на файл.
                 Можно выбрать несколько файлов (максимум 20)
             </small>
-            <div id="file-list" style="margin-top: 10px;"></div>
+            <div id="image-file-list" class="file-list"></div>
+        </div>
+
+        <!-- Секция загрузки видео -->
+        <div class="file-section">
+            <label for="videos" style="display: block; margin-bottom: 5px; font-weight: bold;">Видео детали:</label>
+            <input type="file" id="videos" name="videos" accept="video/*" multiple
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+            <small style="color: #666;">
+                Допустимые форматы: MP4, AVI, MOV, WMV, FLV, WEBM, MKV. Максимальный размер: 100MB на файл.
+                Можно выбрать несколько файлов (максимум 5)
+            </small>
+            <div id="video-file-list" class="file-list"></div>
         </div>
 
         <div style="display: flex; gap: 10px;">
@@ -76,8 +120,29 @@
     </form>
 
     <script>
+        // Обработчик для изображений
         document.getElementById('images').addEventListener('change', function(e) {
-            const fileList = document.getElementById('file-list');
+            const fileList = document.getElementById('image-file-list');
+            fileList.innerHTML = '';
+
+            if (this.files.length > 0) {
+                const list = document.createElement('ul');
+                list.style.paddingLeft = '20px';
+                list.style.marginTop = '10px';
+
+                for (let i = 0; i < this.files.length; i++) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = this.files[i].name + ' (' + (this.files[i].size / 1024 / 1024).toFixed(2) + ' MB)';
+                    list.appendChild(listItem);
+                }
+
+                fileList.appendChild(list);
+            }
+        });
+
+        // Обработчик для видео
+        document.getElementById('videos').addEventListener('change', function(e) {
+            const fileList = document.getElementById('video-file-list');
             fileList.innerHTML = '';
 
             if (this.files.length > 0) {

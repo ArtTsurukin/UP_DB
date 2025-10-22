@@ -77,6 +77,77 @@
             font-family: Arial, sans-serif;
             font-size: 14px;
         }
+        .delete-checkbox {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            transform: scale(1.2);
+        }
+        .image-item.marked-for-delete .thumbnail {
+            opacity: 0.5;
+            border-color: #dc3545;
+        }
+        .file-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .video-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .video-item {
+            text-align: center;
+            position: relative;
+        }
+        .video-thumbnail {
+            width: 150px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: #000;
+        }
+        .video-info {
+            margin-top: 5px;
+            font-size: 12px;
+            font-family: Arial, sans-serif;
+        }
+        .delete-video-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+            font-size: 11px;
+        }
+        .delete-video-checkbox {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            transform: scale(1.2);
+        }
+        .video-item.marked-for-delete .video-thumbnail {
+            opacity: 0.5;
+            border-color: #dc3545;
+        }
+        .file-list {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
     </style>
 </head>
 <body>
@@ -94,7 +165,7 @@
         </a>
     </div>
 
-    <form action="/parts/{{ part.id }}/edit" method="POST" enctype="multipart/form-data" style="max-width: 800px;">
+    <form action="/parts/{{ part.id }}/edit" method="POST" enctype="multipart/form-data" style="max-width: 800px;" id="editForm">
         <!-- Основные поля -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
             <div>
@@ -131,7 +202,11 @@
                 </div>
             </div>
         </div>
-
+        <div style="margin-bottom: 15px;">
+        <label for="quantity" style="display: block; margin-bottom: 5px; font-weight: bold;">Количество:</label>
+        <input type="number" id="quantity" name="quantity" value="{{ part.quantity }}" min="0" required
+           style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">
+        </div>
         <div style="margin-bottom: 20px;">
             <label for="description" style="display: block; margin-bottom: 5px; font-weight: bold;">Комментарии:</label>
             <textarea id="description" name="description" rows="4"
@@ -140,24 +215,29 @@
 
         <!-- Существующие изображения -->
         {% if part.images %}
-        <div style="margin-bottom: 20px;">
+        <div class="file-section">
             <label style="display: block; margin-bottom: 10px; font-weight: bold;">Текущие изображения:</label>
-            <div class="image-container">
+            <div class="image-container" id="existing-images">
                 {% for image in part.images %}
-                <div class="image-item">
+                <div class="image-item" data-image-id="{{ image.id }}">
                     {% if image.is_main %}
                     <div class="main-badge">Главное</div>
                     {% endif %}
-                    <img src="{{ url_for('static', filename='uploads/parts/' + image.filename) }}"
+                    <input type="checkbox"
+                           class="delete-checkbox"
+                           name="delete_images"
+                           value="{{ image.id }}"
+                           style="display: none;">
+                    <img src="{{ url_for('static', filename='uploads/parts/' + part.id|string + '/' + image.filename) }}"
                          alt="{{ part.name }}"
                          class="thumbnail">
                     <div>
                         {% if not image.is_main %}
-                        <button type="button" class="set-main-btn">
+                        <button type="button" class="set-main-btn" onclick="setAsMain({{ image.id }})">
                             Сделать главным
                         </button>
                         {% endif %}
-                        <button type="button" class="delete-btn">
+                        <button type="button" class="delete-btn" onclick="markForDelete({{ image.id }})">
                             Удалить
                         </button>
                     </div>
@@ -168,19 +248,57 @@
         {% endif %}
 
         <!-- Загрузка новых изображений -->
-        <div style="margin-bottom: 20px;">
-            <label for="new_images" style="display: block; margin-bottom: 5px; font-weight: bold;">Добавить новые изображения:</label>
-            <input type="file" id="new_images" name="new_images" accept="image/*" multiple
+        <div class="file-section">
+            <label for="images" style="display: block; margin-bottom: 5px; font-weight: bold;">Добавить новые изображения:</label>
+            <input type="file" id="images" name="images" accept="image/*" multiple
                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">
             <small style="color: #666; font-family: Arial, sans-serif;">
-                Можно выбрать несколько файлов (максимум 10). Допустимые форматы: JPG, PNG, GIF, WEBP. Максимальный размер: 20MB на файл.
+                Можно выбрать несколько файлов. Допустимые форматы: JPG, PNG, GIF, WEBP. Максимальный размер: 20MB на файл.
             </small>
-            <div id="file-list" style="margin-top: 10px;"></div>
+            <div id="image-file-list" class="file-list"></div>
         </div>
 
-        <!-- Скрытые поля для управления изображениями -->
-        <input type="hidden" id="images_to_delete" name="images_to_delete" value="">
-        <input type="hidden" id="main_image_id" name="main_image_id" value="
+        <!-- Существующие видео -->
+        {% if part.videos %}
+        <div class="video-section">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Текущие видео:</label>
+            <div class="video-container" id="existing-videos">
+                {% for video in part.videos %}
+                <div class="video-item" data-video-id="{{ video.id }}">
+                    <input type="checkbox"
+                           class="delete-video-checkbox"
+                           name="delete_videos"
+                           value="{{ video.id }}"
+                           style="display: none;">
+                    <video class="video-thumbnail" preload="metadata">
+                        <source src="{{ url_for('static', filename='uploads/parts/' + part.id|string + '/video/' + video.filename) }}#t=1" type="video/mp4">
+                    </video>
+                    <div class="video-info">
+                        <div>{{ video.original_filename|truncate(20) }}</div>
+                        <button type="button" class="delete-video-btn" onclick="markVideoForDelete({{ video.id }})">
+                            Удалить
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Загрузка новых видео -->
+        <div class="video-section">
+            <label for="videos" style="display: block; margin-bottom: 5px; font-weight: bold;">Добавить новые видео:</label>
+            <input type="file" id="videos" name="videos" accept="video/*" multiple
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: Arial, sans-serif;">
+            <small style="color: #666; font-family: Arial, sans-serif;">
+                Допустимые форматы: MP4, AVI, MOV, WMV, FLV, WEBM, MKV. Максимальный размер: 100MB на файл.
+                Можно выбрать несколько файлов (максимум 5)
+            </small>
+            <div id="video-file-list" class="file-list"></div>
+        </div>
+
+        <!-- Скрытое поле для главного изображения -->
+        <input type="hidden" id="main_image" name="main_image" value="
             {%- for image in part.images -%}
                 {%- if image.is_main -%}
                     {{ image.id }}
@@ -198,11 +316,11 @@
     </form>
 
     <script>
-        let imagesToDelete = [];
+        let formSubmitted = false;
 
-        // Отображение списка выбранных файлов
-        document.getElementById('new_images').addEventListener('change', function(e) {
-            const fileList = document.getElementById('file-list');
+        // Отображение списка выбранных файлов для изображений
+        document.getElementById('images').addEventListener('change', function(e) {
+            const fileList = document.getElementById('image-file-list');
             fileList.innerHTML = '';
 
             if (this.files.length > 0) {
@@ -221,21 +339,62 @@
             }
         });
 
-        // Удаление изображения
-        function deleteImage(imageId) {
-            if (confirm('Вы уверены, что хотите удалить это изображение?')) {
-                imagesToDelete.push(imageId);
-                document.getElementById('images_to_delete').value = imagesToDelete.join(',');
+        // Отображение списка выбранных файлов для видео
+        document.getElementById('videos').addEventListener('change', function(e) {
+            const fileList = document.getElementById('video-file-list');
+            fileList.innerHTML = '';
 
-                // Скрываем удаленное изображение
-                const imageElement = event.target.closest('.image-item');
-                imageElement.style.display = 'none';
+            if (this.files.length > 0) {
+                const list = document.createElement('ul');
+                list.style.paddingLeft = '20px';
+                list.style.marginTop = '10px';
+                list.style.fontFamily = 'Arial, sans-serif';
+
+                for (let i = 0; i < this.files.length; i++) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = this.files[i].name + ' (' + (this.files[i].size / 1024 / 1024).toFixed(2) + ' MB)';
+                    list.appendChild(listItem);
+                }
+
+                fileList.appendChild(list);
+            }
+        });
+
+        // Помечаем изображение для удаления
+        function markForDelete(imageId) {
+            const imageItem = document.querySelector(`[data-image-id="${imageId}"]`);
+            const checkbox = imageItem.querySelector('.delete-checkbox');
+
+            if (imageItem.classList.contains('marked-for-delete')) {
+                // Отменяем удаление
+                imageItem.classList.remove('marked-for-delete');
+                checkbox.checked = false;
+            } else {
+                // Помечаем для удаления
+                imageItem.classList.add('marked-for-delete');
+                checkbox.checked = true;
+            }
+        }
+
+        // Помечаем видео для удаления
+        function markVideoForDelete(videoId) {
+            const videoItem = document.querySelector(`[data-video-id="${videoId}"]`);
+            const checkbox = videoItem.querySelector('.delete-video-checkbox');
+
+            if (videoItem.classList.contains('marked-for-delete')) {
+                // Отменяем удаление
+                videoItem.classList.remove('marked-for-delete');
+                checkbox.checked = false;
+            } else {
+                // Помечаем для удаления
+                videoItem.classList.add('marked-for-delete');
+                checkbox.checked = true;
             }
         }
 
         // Установка главного изображения
         function setAsMain(imageId) {
-            document.getElementById('main_image_id').value = imageId;
+            document.getElementById('main_image').value = imageId;
 
             // Обновляем визуальное отображение
             document.querySelectorAll('.main-badge').forEach(badge => {
@@ -246,39 +405,32 @@
                 btn.style.display = 'inline-block';
             });
 
-            const currentImage = event.target.closest('.image-item');
+            const currentImage = document.querySelector(`[data-image-id="${imageId}"]`);
             const badge = document.createElement('div');
             badge.className = 'main-badge';
             badge.textContent = 'Главное';
             currentImage.prepend(badge);
 
-            event.target.style.display = 'none';
-
-            alert('Изображение установлено как главное. Не забудьте сохранить изменения!');
+            currentImage.querySelector('.set-main-btn').style.display = 'none';
         }
 
-        // Добавляем обработчики событий для кнопок изображений
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const imageId = this.closest('.image-item').querySelector('img').src.split('/').pop().split('.')[0];
-                    deleteImage(imageId);
-                });
-            });
-
-            document.querySelectorAll('.set-main-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const imageId = this.closest('.image-item').querySelector('img').src.split('/').pop().split('.')[0];
-                    setAsMain(imageId);
-                });
-            });
+        // Убираем предупреждение при отправке формы
+        document.getElementById('editForm').addEventListener('submit', function() {
+            formSubmitted = true;
         });
 
-        // Предупреждение при уходе со страницы
+        // Убираем предупреждение при уходе со страницы
         window.addEventListener('beforeunload', function(e) {
-            if (imagesToDelete.length > 0 || document.getElementById('new_images').files.length > 0) {
-                e.preventDefault();
-                e.returnValue = '';
+            if (!formSubmitted) {
+                // Только если форма не отправлена
+                const hasChanges = document.getElementById('images').files.length > 0 ||
+                                 document.getElementById('videos').files.length > 0 ||
+                                 document.querySelectorAll('.delete-checkbox:checked').length > 0 ||
+                                 document.querySelectorAll('.delete-video-checkbox:checked').length > 0;
+                if (hasChanges) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
             }
         });
     </script>

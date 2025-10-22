@@ -70,6 +70,46 @@
         .preview-image:hover {
             transform: scale(1.02);
         }
+        .video-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .video-item {
+            flex: 0 0 300px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .video-player {
+            width: 100%;
+            border-radius: 4px;
+        }
+        .video-info {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .download-video-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+        .download-video-btn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -98,14 +138,12 @@
             <!-- Главное фото (предпросмотр) -->
             {% set main_image = part.images|selectattr("is_main")|first or part.images[0] %}
             <div style="margin-bottom: 15px; text-align: center;">
-                <img src="{{ url_for('static', filename='uploads/parts/' + main_image.filename) }}"
+                <img src="{{ url_for('static', filename='uploads/parts/' + part.id|string + '/' + main_image.filename) }}"
                      alt="{{ part.name }}"
                      class="preview-image"
                      id="mainPreview"
                      style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 1px solid #ddd;"
-                     onclick="openModal('{{ url_for('static', filename='uploads/parts/' + main_image.filename) }}')">
-
-
+                     onclick="openModal(currentImageIndex)">
             </div>
 
             <!-- Галерея превью -->
@@ -113,11 +151,11 @@
             <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
                 {% for image in part.images %}
                 <div style="text-align: center;">
-                    <img src="{{ url_for('static', filename='uploads/parts/' + image.filename) }}"
+                    <img src="{{ url_for('static', filename='uploads/parts/' + part.id|string + '/' + image.filename) }}"
                          alt="{{ part.name }}"
                          class="thumbnail"
                          style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px; cursor: pointer; border: {% if image.is_main %}2px solid #007bff{% else %}1px solid #ddd{% endif %};"
-                         onclick="changePreviewImage('{{ url_for('static', filename='uploads/parts/' + image.filename) }}', '{{ image.filename }}')">
+                         onclick="changePreviewImage('{{ url_for('static', filename='uploads/parts/' + part.id|string + '/' + image.filename) }}', '{{ image.filename }}', {{ loop.index0 }})">
                     <div style="margin-top: 5px;">
                         <small>
                             <a href="javascript:void(0)" onclick="downloadImage('{{ image.filename }}', '{{ part.name }}_{{ loop.index }}')" style="color: #007bff; text-decoration: none; font-family: Arial, sans-serif;">
@@ -142,15 +180,41 @@
         <div style="flex: 1; min-width: 300px;">
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; font-family: Arial, sans-serif;">
                 <p><strong>Артикул:</strong> {{ part.id }}</p>
-                <p><strong>Наименования:</strong> {{ part.name }}</p>
+                <p><strong>Наименование:</strong> {{ part.name }}</p>
                 <p><strong>Авто:</strong> {{ part.car }}</p>
                 <p><strong>Кат. номер:</strong> {{ part.part_number }}</p>
                 <p><strong>Комментарии:</strong> {{ part.description }}</p>
+                <p><strong>Количество в наличии:</strong> {{ part.quantity }} шт.</p>
                 <p><strong>Цена закупки:</strong> {{ part.price_in }} руб.</p>
                 <p><strong>Цена продажи:</strong> {{ part.price_out }} руб.</p>
             </div>
         </div>
     </div>
+
+    <!-- Секция видео -->
+    {% if part.videos %}
+    <div class="video-section">
+        <h3 style="margin-bottom: 15px; font-family: Arial, sans-serif;">Видео детали</h3>
+        <div class="video-container">
+            {% for video in part.videos %}
+            <div class="video-item">
+                <video controls class="video-player">
+                    <source src="{{ url_for('static', filename='uploads/parts/' + part.id|string + '/video/' + video.filename) }}" type="video/mp4">
+                    Ваш браузер не поддерживает видео тег.
+                </video>
+                <div class="video-info">
+                    <p style="margin: 5px 0; font-size: 14px; font-family: Arial, sans-serif;">
+                        {{ video.original_filename }}
+                    </p>
+                    <button class="download-video-btn" onclick="downloadVideo('{{ video.filename }}', '{{ part.name }}_{{ loop.index }}')">
+                        Скачать видео
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Модальное окно для полноэкранного просмотра -->
     <div id="imageModal" class="modal">
@@ -175,20 +239,31 @@
             images = [
                 {% for image in part.images %}
                 {
-                    src: "{{ url_for('static', filename='uploads/parts/' + image.filename) }}",
+                    src: "{{ url_for('static', filename='uploads/parts/' + part.id|string + '/' + image.filename) }}",
                     filename: "{{ image.filename }}"
                 }{% if not loop.last %},{% endif %}
                 {% endfor %}
             ];
+
+            // Устанавливаем текущее изображение как главное
+            {% set main_image = part.images|selectattr("is_main")|first or part.images[0] %}
+            currentImageFilename = "{{ main_image.filename }}";
+            currentImageName = "{{ part.name }}";
+
+            // Находим индекс главного изображения
+            const mainImageSrc = "{{ url_for('static', filename='uploads/parts/' + part.id|string + '/' + main_image.filename) }}";
+            currentImageIndex = images.findIndex(img => img.src === mainImageSrc);
+            if (currentImageIndex === -1) currentImageIndex = 0;
             {% endif %}
         });
 
         // Смена изображения в предпросмотре
-        function changePreviewImage(imageSrc, filename) {
+        function changePreviewImage(imageSrc, filename, index) {
             const mainPreview = document.getElementById('mainPreview');
             if (mainPreview) {
                 mainPreview.src = imageSrc;
                 currentImageFilename = filename;
+                currentImageIndex = index;
 
                 // Обновляем границы у превьюшек
                 document.querySelectorAll('.thumbnail').forEach(thumb => {
@@ -201,19 +276,19 @@
         }
 
         // Функции для модального окна
-        function openModal(imageSrc) {
+        function openModal(imageIndex = null) {
             const modal = document.getElementById('imageModal');
             const modalImg = document.getElementById('modalImage');
+
+            // Используем переданный индекс или текущий
+            const indexToUse = imageIndex !== null ? imageIndex : currentImageIndex;
+
             modal.style.display = 'block';
-            modalImg.src = imageSrc;
+            modalImg.src = images[indexToUse].src;
 
-            // Находим индекс текущего изображения
-            currentImageIndex = images.findIndex(img => img.src === imageSrc);
-            if (currentImageIndex === -1) currentImageIndex = 0;
-
-            // Получаем имя файла из пути
-            const pathParts = imageSrc.split('/');
-            currentImageFilename = pathParts[pathParts.length - 1];
+            // Обновляем текущий индекс
+            currentImageIndex = indexToUse;
+            currentImageFilename = images[indexToUse].filename;
             currentImageName = '{{ part.name }}';
         }
 
@@ -269,7 +344,7 @@
 
         // Скачивание изображения
         function downloadImage(filename, customName = '') {
-            const imageUrl = "{{ url_for('static', filename='uploads/parts/') }}" + filename;
+            const imageUrl = "{{ url_for('static', filename='uploads/parts/' + part.id|string + '/') }}" + filename;
             const link = document.createElement('a');
             link.href = imageUrl;
             link.download = customName + '.' + filename.split('.').pop();
@@ -282,6 +357,17 @@
             if (currentImageFilename) {
                 downloadImage(currentImageFilename, currentImageName);
             }
+        }
+
+        // Скачивание видео
+        function downloadVideo(filename, customName = '') {
+            const videoUrl = "{{ url_for('static', filename='uploads/parts/' + part.id|string + '/video/') }}" + filename;
+            const link = document.createElement('a');
+            link.href = videoUrl;
+            link.download = customName + '.' + filename.split('.').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         // Подтверждение удаления

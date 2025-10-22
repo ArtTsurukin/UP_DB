@@ -14,8 +14,11 @@ class Config:
     # File upload settings
     MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB
     MAX_FILES = 20
+    MAX_VIDEO_SIZE = 100 * 1024 * 1024  # 100MB
+    MAX_VIDEOS = 5
     UPLOAD_FOLDER = "static/uploads/parts"
     ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "heic"}
+    ALLOWED_VIDEO_EXTENSIONS = {"mp4", "avi", "mov", "wmv", "flv", "webm", "mkv"}
 
 
 class DevelopmentConfig(Config):

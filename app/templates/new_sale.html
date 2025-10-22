@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новая продажа</title>
+    <style>
+        .nav-button {
+            display: inline-block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .form-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+        }
+        .search-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .search-result-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        .search-result-item:hover {
+            background-color: #f5f5f5;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .items-table th,
+        .items-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-family: Arial, sans-serif;
+        }
+        .items-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+        }
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+        .summary {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-family: Arial, sans-serif;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 18px;
+            color: #28a745;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        .half-width {
+            width: 48%;
+            display: inline-block;
+        }
+        .discount-fields {
+            display: flex;
+            gap: 4%;
+        }
+        .quantity-input {
+            width: 80px;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .max-quantity {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Новая продажа</h1>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <a href="/sales" class="nav-button" style="background-color: #6c757d;">
+            ← Назад к журналу
+        </a>
+        <a href="/" class="nav-button" style="background-color: #20994c;">
+            Главная
+        </a>
+    </div>
+
+    <form action="/sales/new" method="POST" id="saleForm">
+        <!-- Секция товаров -->
+        <div class="form-section">
+            <h3>Товары</h3>
+
+            <div class="search-container">
+                <label for="partSearch">Поиск товара:</label>
+                <input type="text" id="partSearch" placeholder="Введите название, артикул или авто...">
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Наименование</th>
+                        <th>Артикул</th>
+                        <th>Авто</th>
+                        <th>Цена</th>
+                        <th>Кол-во</th>
+                        <th>Сумма</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsTableBody">
+                    <!-- Товары будут добавляться здесь -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Секция скидки -->
+        <div class="form-section">
+            <h3>Скидка</h3>
+            <div class="discount-fields">
+                <div class="half-width">
+                    <label for="discount_type">Тип скидки:</label>
+                    <select id="discount_type" name="discount_type">
+                        <option value="">Без скидки</option>
+                        <option value="percent">Процент (%)</option>
+                        <option value="fixed">Фиксированная (руб.)</option>
+                    </select>
+                </div>
+                <div class="half-width">
+                    <label for="discount_value">Значение скидки:</label>
+                    <input type="number" id="discount_value" name="discount_value" min="0" value="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Секция доставки -->
+        <div class="form-section">
+            <h3>Доставка</h3>
+            <div class="form-group">
+                <label for="transport_company">Транспортная компания:</label>
+                <input type="text" id="transport_company" name="transport_company" placeholder="Название ТК">
+            </div>
+            <div class="form-group">
+                <label for="tracking_number">Трек номер:</label>
+                <input type="text" id="tracking_number" name="tracking_number" placeholder="Номер отслеживания">
+            </div>
+        </div>
+
+        <!-- Итоги -->
+        <div class="summary">
+            <div class="summary-item">
+                <span>Общая сумма:</span>
+                <span id="totalAmount">0 руб.</span>
+            </div>
+            <div class="summary-item">
+                <span>Скидка:</span>
+                <span id="discountAmount">0 руб.</span>
+            </div>
+            <div class="summary-item total">
+                <span>Итого к оплате:</span>
+                <span id="finalAmount">0 руб.</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="submit" class="nav-button" style="background-color: #28a745; border: none;">
+                Создать продажу
+            </button>
+            <a href="/sales" class="nav-button" style="background-color: #6c757d;">
+                Отмена
+            </a>
+        </div>
+    </form>
+
+    <script>
+        let selectedItems = [];
+        let totalAmount = 0;
+        let searchTimeout;
+
+        // Поиск товаров с задержкой
+        document.getElementById('partSearch').addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+
+            clearTimeout(searchTimeout);
+
+            if (query.length < 2) {
+                document.getElementById('searchResults').style.display = 'none';
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                performSearch(query);
+            }, 300);
+        });
+
+        // Функция поиска
+        function performSearch(query) {
+            fetch(`/api/parts/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(parts => {
+                    const resultsContainer = document.getElementById('searchResults');
+                    resultsContainer.innerHTML = '';
+
+                    if (parts.length > 0) {
+                        parts.forEach(part => {
+                            const item = document.createElement('div');
+                            item.className = 'search-result-item';
+                            item.innerHTML = `
+                                <div><strong>${part.name}</strong></div>
+                                <div>Авто: ${part.car} | Артикул: ${part.part_number}</div>
+                                <div>Цена: ${part.price_out} руб. | В наличии: ${part.quantity} шт.</div>
+                            `;
+                            item.onclick = () => {
+                                addItemToSale(part);
+                                document.getElementById('searchResults').style.display = 'none';
+                            };
+                            resultsContainer.appendChild(item);
+                        });
+                        resultsContainer.style.display = 'block';
+                    } else {
+                        const noResults = document.createElement('div');
+                        noResults.className = 'search-result-item';
+                        noResults.textContent = 'Товары не найдены';
+                        noResults.style.color = '#666';
+                        noResults.style.fontStyle = 'italic';
+                        resultsContainer.appendChild(noResults);
+                        resultsContainer.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка поиска:', error);
+                });
+        }
+
+        // Добавление товара в продажу
+        function addItemToSale(part) {
+            // Проверяем, не добавлен ли уже товар
+            if (selectedItems.find(item => item.id === part.id)) {
+                alert('Этот товар уже добавлен в продажу');
+                return;
+            }
+
+            selectedItems.push({
+                id: part.id,
+                name: part.name,
+                part_number: part.part_number,
+                car: part.car,
+                price_out: part.price_out,
+                quantity: 1,
+                max_quantity: part.quantity
+            });
+
+            updateItemsTable();
+            updateSummary();
+            document.getElementById('partSearch').value = '';
+        }
+
+        // Обновление таблицы товаров
+        function updateItemsTable() {
+            const tbody = document.getElementById('itemsTableBody');
+            tbody.innerHTML = '';
+
+            selectedItems.forEach((item, index) => {
+                const row = document.createElement('tr');
+                const itemTotal = item.price_out * item.quantity;
+
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.part_number}</td>
+                    <td>${item.car}</td>
+                    <td>${item.price_out} руб.</td>
+                    <td>
+                        <input type="number"
+                               class="quantity-input"
+                               value="${item.quantity}"
+                               min="1"
+                               max="${item.max_quantity}"
+                               onchange="updateQuantity(${index}, this.value)"
+                               oninput="updateQuantity(${index}, this.value)">
+                        <div class="max-quantity">макс: ${item.max_quantity} шт.</div>
+                    </td>
+                    <td>${itemTotal} руб.</td>
+                    <td>
+                        <button type="button" class="remove-btn" onclick="removeItem(${index})">
+                            Удалить
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Обновление количества с проверкой
+        function updateQuantity(index, quantity) {
+            quantity = parseInt(quantity) || 1;
+            const item = selectedItems[index];
+
+            if (quantity > 0 && quantity <= item.max_quantity) {
+                item.quantity = quantity;
+                updateItemsTable();
+                updateSummary();
+            } else if (quantity > item.max_quantity) {
+                alert(`Нельзя добавить больше ${item.max_quantity} шт. товара "${item.name}"`);
+                item.quantity = item.max_quantity;
+                updateItemsTable();
+                updateSummary();
+            } else if (quantity < 1) {
+                item.quantity = 1;
+                updateItemsTable();
+                updateSummary();
+            }
+        }
+
+        // Удаление товара
+        function removeItem(index) {
+            if (confirm('Удалить этот товар из продажи?')) {
+                selectedItems.splice(index, 1);
+                updateItemsTable();
+                updateSummary();
+            }
+        }
+
+        // Обновление итогов
+        function updateSummary() {
+            totalAmount = selectedItems.reduce((sum, item) => sum + (item.price_out * item.quantity), 0);
+
+            const discountType = document.getElementById('discount_type').value;
+            const discountValue = parseInt(document.getElementById('discount_value').value) || 0;
+
+            let discountAmount = 0;
+            if (discountType === 'percent' && discountValue > 0) {
+                discountAmount = Math.ceil(totalAmount * (discountValue / 100));
+            } else if (discountType === 'fixed' && discountValue > 0) {
+                discountAmount = discountValue;
+            }
+
+            const finalAmount = Math.max(0, totalAmount - discountAmount);
+
+            document.getElementById('totalAmount').textContent = totalAmount + ' руб.';
+            document.getElementById('discountAmount').textContent = discountAmount + ' руб.';
+            document.getElementById('finalAmount').textContent = finalAmount + ' руб.';
+        }
+
+        // Обновление итогов при изменении скидки
+        document.getElementById('discount_type').addEventListener('change', updateSummary);
+        document.getElementById('discount_value').addEventListener('input', updateSummary);
+
+        // Отправка формы
+        document.getElementById('saleForm').addEventListener('submit', function(e) {
+            if (selectedItems.length === 0) {
+                e.preventDefault();
+                alert('Добавьте хотя бы один товар в продажу');
+                return;
+            }
+
+            // Добавляем скрытые поля с товарами
+            selectedItems.forEach((item, index) => {
+                const partIdInput = document.createElement('input');
+                partIdInput.type = 'hidden';
+                partIdInput.name = 'part_id[]';
+                partIdInput.value = item.id;
+                this.appendChild(partIdInput);
+
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'hidden';
+                quantityInput.name = 'quantity[]';
+                quantityInput.value = item.quantity;
+                this.appendChild(quantityInput);
+            });
+        });
+
+        // Закрытие результатов поиска при клике вне области
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-container')) {
+                document.getElementById('searchResults').style.display = 'none';
+            }
+        });
+
+        // Закрытие результатов поиска при нажатии Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.getElementById('searchResults').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

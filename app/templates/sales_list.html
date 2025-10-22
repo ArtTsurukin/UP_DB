@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Журнал продаж</title>
+    <style>
+        .nav-button {
+            display: inline-block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .sale-row:hover {
+            background-color: #f5f5f5;
+            cursor: pointer;
+        }
+        .positive {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .discount {
+            color: #dc3545;
+        }
+        .items-count {
+            background-color: #007bff;
+            color: white;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Журнал продаж</h1>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+        <a href="/" class="nav-button" style="background-color: #20994c;">
+            Главная
+        </a>
+        <a href="/sales/new" class="nav-button" style="background-color: #007bff;">
+            Новая продажа
+        </a>
+        <a href="/parts" class="nav-button" style="background-color: #6c757d;">
+            Все детали
+        </a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Дата и время</th>
+                <th>Товары</th>
+                <th>Сумма</th>
+                <th>Скидка</th>
+                <th>Итого</th>
+                <th>Транспортная компания</th>
+                <th>Трек номер</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales %}
+            <tr class="sale-row" onclick="window.location.href='/sales/{{ sale.id }}'">
+                <td>{{ sale.id }}</td>
+                <td>{{ sale.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>
+                    {{ sale.items|length }} шт.
+                    <span class="items-count">{{ sale.items|length }}</span>
+                </td>
+                <td>{{ sale.total_amount }} руб.</td>
+                <td class="discount">
+                    {% if sale.discount_value > 0 %}
+                        {{ sale.discount_value }}{% if sale.discount_type == 'percent' %}%{% else %} руб.{% endif %}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="positive">{{ sale.final_amount }} руб.</td>
+                <td>{{ sale.transport_company or '-' }}</td>
+                <td>{{ sale.tracking_number or '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if not sales %}
+    <p style="text-align: center; margin-top: 20px; color: #6c757d;">Продажи не найдены</p>
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('.sale-row');
+            rows.forEach(row => {
+                row.addEventListener('click', function() {
+                    window.location.href = `/sales/${this.cells[0].textContent.trim()}`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
