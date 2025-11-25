@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d64bcf9-c267-42b6-b598-afc1e731ab9a" name="Changes" comment="Добавлен Dockerfile">
+    <list default="true" id="2d64bcf9-c267-42b6-b598-afc1e731ab9a" name="Changes" comment="Изменен deploy">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/deploy.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploy.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -170,7 +171,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764065355351</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Изменен deploy">
+      <option name="closed" value="true" />
+      <created>1764073231253</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1764073231253</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -181,6 +190,7 @@
     <MESSAGE value="Изменен метод хэширования пароля на argon2&#10;Добавлена функция поиска детали по любым совпадениям" />
     <MESSAGE value="Выполнено структурирование приложения" />
     <MESSAGE value="Добавлен Dockerfile" />
-    <option name="LAST_COMMIT_MESSAGE" value="Добавлен Dockerfile" />
+    <MESSAGE value="Изменен deploy" />
+    <option name="LAST_COMMIT_MESSAGE" value="Изменен deploy" />
   </component>
 </project>
