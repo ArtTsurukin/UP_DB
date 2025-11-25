@@ -5,25 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2d64bcf9-c267-42b6-b598-afc1e731ab9a" name="Changes" comment="Выполнено структурирование приложения">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/routes/sales.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/templates/new_sale.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/templates/sale_detail.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/templates/sales_list.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/static/UP_3.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/routes/parts.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routes/parts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/all_parts.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/all_parts.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/edit_part.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/edit_part.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/new_part.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/new_part.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/templates/part.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/part.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/utils/file_handling.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/file_handling.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/utils/security.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/utils/security.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,10 +63,14 @@
     &quot;Python.run.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/Artem/PycharmProjects/UP_DB_IS/app/static&quot;
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/static" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/app" />
     </key>
