@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2d64bcf9-c267-42b6-b598-afc1e731ab9a" name="Changes" comment="Изменена эмблема в index.html" />
+    <list default="true" id="2d64bcf9-c267-42b6-b598-afc1e731ab9a" name="Changes" comment="Изменена эмблема в login.html">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/templates/login.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -192,7 +196,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764081909271</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Изменена эмблема в login.html">
+      <option name="closed" value="true" />
+      <created>1764082714222</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1764082714222</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -205,6 +217,7 @@
     <MESSAGE value="Добавлен Dockerfile" />
     <MESSAGE value="Изменен deploy" />
     <MESSAGE value="Изменена эмблема в index.html" />
-    <option name="LAST_COMMIT_MESSAGE" value="Изменена эмблема в index.html" />
+    <MESSAGE value="Изменена эмблема в login.html" />
+    <option name="LAST_COMMIT_MESSAGE" value="Изменена эмблема в login.html" />
   </component>
 </project>
