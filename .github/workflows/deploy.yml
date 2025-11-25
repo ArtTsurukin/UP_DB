@@ -34,8 +34,8 @@ jobs:
         file: ./Dockerfile  # Путь к Dockerfile
         push: true  # Отправить в registry после сборки
         tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
-          ${{ secrets.DOCKERHUB_USERNAME }}/my-app:${{ github.sha }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/up_db:latest
+          ${{ secrets.DOCKERHUB_USERNAME }}/up_db:${{ github.sha }}
 
   # Задача 2: Деплой на сервер
   deploy:
@@ -55,16 +55,16 @@ jobs:
         # Подключаемся по SSH и выполняем команды на сервере
         ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }} "
           # Останавливаем и удаляем старый контейнер
-          docker stop my-app-container || true
-          docker rm my-app-container || true
+          docker stop up_db || true
+          docker rm up_db || true
           
           # Скачиваем новый образ
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/up_db:latest
           
           # Запускаем новый контейнер
           docker run -d \
-            --name my-app-container \
-            -p 80:3000 \
+            --name up_db:latest \
+            -p 5000:5000 \
             --restart unless-stopped \
-            ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/up_db:latest
         "
