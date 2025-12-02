@@ -9,6 +9,7 @@ import os
 parts_bp = Blueprint('parts', __name__)
 
 @parts_bp.route("/parts", methods=["GET"], strict_slashes=False)
+@admin_required
 def all_parts():
     parts = Part.query.options(db.joinedload(Part.images)).all()
     return render_template("all_parts.html", parts=parts)
@@ -19,6 +20,7 @@ def new_part_form():
     return render_template("new_part.html")
 
 @parts_bp.route("/parts/<int:pid>", methods=["GET"], strict_slashes=False)
+@admin_required
 def get_one_part(pid):
     try:
         part = db.session.get(Part, pid)
@@ -290,6 +292,7 @@ def edit_part(pid):
     return render_template('edit_part.html', part=part)
 
 @parts_bp.route("/search", methods=["GET"], strict_slashes=False)
+@admin_required
 def search():
     search_request = request.args.get("q")
 
